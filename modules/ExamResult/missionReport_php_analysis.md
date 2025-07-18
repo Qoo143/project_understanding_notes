@@ -1,37 +1,37 @@
-# ExamResult/missionReport.php Analysis
+# ExamResult/missionReport.php 分析
 
-This file generates a powerful and complex **class-level mission report** for teachers. Its primary purpose is to display a grid comparing the performance of all students in a class across multiple mission attempts.
+此檔案為教師生成一個強大而複雜的**班級任務報告**。其主要目的是顯示一個網格，比較班級中所有學生在多次任務嘗試中的表現。
 
-### Key Functionality:
+### 主要功能：
 
-1.  **Report Generation Interface**:
-    *   **Filtering**: The page provides a comprehensive set of filters for teachers to select the exact data they want to see. They can filter by:
-        *   Academic Year and Semester
-        *   Class Type (Normal, Remedial, Custom)
-        *   Specific Class
-        *   Assigning Teacher
-    *   **Comparison Mode**: A key feature is the ability to compare a student's latest attempt with either their **first** attempt or their **previous** attempt. This allows teachers to easily track progress and improvement over time.
-    *   **AJAX-Driven**: The entire report is generated dynamically. After the teacher selects their filters and clicks "Query Report," an AJAX call is made to `prodb_missionreport.php` to fetch the necessary data.
+1.  **報告生成介面**：
+    *   **篩選**：頁面提供了一套全面的篩選器，供教師選擇他們想要查看的確切數據。他們可以按以下方式篩選：
+        *   學年和學期
+        *   班級類型（普通、補救、自定義）
+        *   特定班級
+        *   指派教師
+    *   **比較模式**：一個關鍵功能是能夠將學生的最新嘗試與他們的**第一次**嘗試或**上一次**嘗試進行比較。這使得教師可以輕鬆地追蹤隨時間的進步和改進。
+    *   **AJAX 驅動**：整個報告是動態生成的。教師選擇篩選條件並點擊「查詢報告」後，會向 `prodb_missionreport.php` 發出 AJAX 調用以獲取必要的數據。
 
-2.  **Data Display Grid**:
-    *   The main feature is a large table where:
-        *   **Rows** represent individual students in the selected class.
-        *   **Columns** represent the different missions that have been assigned.
-    *   **Cell Content**: Each cell in the grid is rich with information, showing:
-        *   The student's score on their latest attempt (e.g., "85%").
-        *   A performance comparison indicator:
-            *   An **up arrow** (green) if the score improved.
-            *   A **down arrow** (red) if the score decreased.
-            *   A **minus icon** (yellow) if the score was the same.
-        *   The percentage change in score.
-        *   A link to view the detailed diagnostic report for that specific attempt.
+2.  **數據顯示網格**：
+    *   主要功能是一個大型表格，其中：
+        *   **行**代表所選班級中的每個學生。
+        *   **列**代表已分配的不同任務。
+    *   **單元格內容**：網格中的每個單元格都包含豐富的信息，顯示：
+        *   學生在最新嘗試中的分數（例如，「85%」）。
+        *   表現比較指示器：
+            *   如果分數提高，則為**向上箭頭**（綠色）。
+            *   如果分數下降，則為**向下箭頭**（紅色）。
+            *   如果分數相同，則為**減號圖標**（黃色）。
+        *   分數的百分比變化。
+        *   一個鏈接，用於查看該特定嘗試的詳細診斷報告。
 
-3.  **Backend Communication**:
-    *   The file heavily relies on `prodb_missionreport.php` (which I will analyze next) to do the heavy lifting. This frontend file is responsible for building the UI and making the initial AJAX request. The backend script then fetches all the student records, compares the scores from different attempts, and returns the structured data needed to build the grid.
+3.  **後端通訊**：
+    *   該檔案嚴重依賴 `prodb_missionreport.php`（我將在接下來分析）來完成繁重的工作。此前端檔案負責構建使用者介面並發出初始 AJAX 請求。後端腳本然後獲取所有學生記錄，比較不同嘗試的分數，並返回構建網格所需的結構化數據。
 
-4.  **Role-Based View**:
-    *   The code checks if the user is a teacher. While the current implementation seems focused on teachers, this check suggests that other roles (like students) might see a simplified version of this page, likely showing only their own report data.
+4.  **基於角色的視圖**：
+    *   代碼檢查使用者是否為教師。雖然當前實現似乎專注於教師，但此檢查表明其他角色（如學生）可能會看到此頁面的簡化版本，可能只顯示他們自己的報告數據。
 
-### Conclusion:
+### 結論：
 
-`missionReport.php` is a sophisticated data visualization tool for teachers. It provides a high-level overview of class performance across multiple assignments and attempts, with a powerful comparison feature that makes it easy to track student growth. It follows the same pattern as the dashboard, where the PHP file sets up the view and the core logic is handled by a separate backend processor (`prodb_missionreport.php`) and client-side JavaScript.
+`missionReport.php` 是一個複雜的數據可視化工具，適用於教師。它提供了跨多個作業和嘗試的班級表現的高級概覽，並具有強大的比較功能，可以輕鬆追蹤學生的成長。它遵循與儀表板相同的模式，其中 PHP 檔案設置視圖，核心邏輯由單獨的後端處理器（`prodb_missionreport.php`）和客戶端 JavaScript 處理。

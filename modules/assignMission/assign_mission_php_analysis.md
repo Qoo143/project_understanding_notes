@@ -1,31 +1,31 @@
-# assignMission/assign_mission.php Analysis
+# assignMission/assign_mission.php 分析
 
-This file is the user interface for the **mission creation wizard**. It provides a step-by-step process for teachers to create and assign new learning tasks to students. It's a highly complex and dynamic single-page interface.
+此檔案是**任務創建精靈**的使用者介面。它提供了一個分步流程，供教師創建和分配新的學習任務給學生。這是一個高度複雜且動態的單頁面介面。
 
-### Key Functionality:
+### 主要功能：
 
-1.  **Four-Step Wizard Interface**:
-    *   The entire process is broken down into four clear steps, with tabs at the top guiding the user:
-        1.  **Step 1: Task Type (任務類型)**: The user first chooses the type of mission they want to create (e.g., Knowledge Structure, Unit Test, Questionnaire). They can also choose to load a mission from a shared template (either school-wide or via a private code).
-        2.  **Step 2: Task Content (任務內容)**: Based on the type selected in Step 1, this step dynamically loads the appropriate interface for selecting content. For a "Knowledge Structure" mission, it loads an `iframe` with the D3.js knowledge map. For a "Unit Test," it provides dropdowns to select the subject, grade, and specific test papers.
-        3.  **Step 3: Task Settings (任務設定)**: Here, the teacher defines the mission's parameters:
-            *   **Name**: The title of the mission.
-            *   **Duration**: Start and end dates.
-            *   **Target**: Who to assign the mission to. This is a very flexible section, allowing assignment to entire classes, specific individuals, or student groups.
-            *   **Group Leader Authorization**: Optionally grant group leaders permission to view their group's progress.
-        4.  **Step 4: Confirm Task (確認任務)**: This final step displays a summary of all the selected settings and content for the teacher to review before creating the mission.
+1.  **四步精靈介面**：
+    *   整個過程分為四個清晰的步驟，頂部有標籤引導使用者：
+        1.  **步驟 1: 任務類型**: 使用者首先選擇他們想要創建的任務類型（例如，知識結構、單元測試、問卷）。他們還可以選擇從共享模板（學校範圍或通過私人代碼）加載任務。
+        2.  **步驟 2: 任務內容**: 根據步驟 1 中選擇的類型，此步驟動態加載用於選擇內容的適當介面。對於「知識結構」任務，它會加載一個帶有 D3.js 知識圖的 `iframe`。對於「單元測試」，它提供了下拉菜單來選擇科目、年級和特定的試卷。
+        3.  **步驟 3: 任務設定**: 在這裡，教師定義任務的參數：
+            *   **名稱**: 任務的標題。
+            *   **持續時間**: 開始和結束日期。
+            *   **目標**: 將任務分配給誰。這是一個非常靈活的部分，允許分配給整個班級、特定個人或學生組。
+            *   **組長授權**: 可選地授予組長查看其組進度的權限。
+        4.  **步驟 4: 確認任務**: 最後一步顯示所有選定設定和內容的摘要，供教師在創建任務之前進行審查。
 
-2.  **Dynamic and Interactive UI**:
-    *   **JavaScript Heavy**: The page relies heavily on JavaScript (specifically `assignment.js` and `adp_core_validation.js`) to manage the user's journey through the four steps.
-    *   **AJAX for Content**: The content for Step 2 (the mission content itself) is loaded dynamically via AJAX calls to `assign_mission_prodb.php`. This prevents the page from having to load all possible mission types at once.
-    *   **Conditional UI**: The UI changes based on user selections. For example, selecting "Group" as the target in Step 3 will show a list of student groups, while selecting "Class" will show a list of classes. The "More Settings" section also dynamically shows relevant options (like "Randomize Questions" or "Share Mission") based on the mission type.
+2.  **動態和互動式使用者介面**：
+    *   **大量 JavaScript**: 頁面嚴重依賴 JavaScript（特別是 `assignment.js` 和 `adp_core_validation.js`）來管理使用者在四個步驟中的旅程。
+    *   **AJAX 加載內容**: 步驟 2 的內容（任務內容本身）通過 AJAX 調用 `assign_mission_prodb.php` 動態加載。這避免了頁面必須一次性加載所有可能的任務類型。
+    *   **條件式使用者介面**: 使用者介面根據使用者選擇而變化。例如，在步驟 3 中選擇「組」作為目標將顯示學生組列表，而選擇「班級」將顯示班級列表。「更多設定」部分還會根據任務類型動態顯示相關選項（例如「隨機問題」或「共享任務」）。
 
-3.  **Role-Based Variations**:
-    *   The interface shows slightly different options based on the user's role. For example, a regular teacher has a full list of mission types, while a parent might only be able to assign "Knowledge Structure" or "Diagnostic Test" tasks.
+3.  **基於角色的變體**：
+    *   介面根據使用者的角色顯示略有不同的選項。例如，普通教師擁有完整的任務類型列表，而家長可能只能分配「知識結構」或「診斷測試」任務。
 
-4.  **Backend Communication**:
-    *   The final "Create" button in Step 4 sends all the collected data (mission type, content, settings, targets) to `assign_mission_prodb.php` to be processed and saved to the database.
+4.  **後端通訊**：
+    *   步驟 4 中的最終「創建」按鈕將所有收集到的數據（任務類型、內容、設定、目標）發送到 `assign_mission_prodb.php` 進行處理並保存到資料庫。
 
-### Conclusion:
+### 結論：
 
-`assign_mission.php` is a sophisticated and user-friendly wizard for creating learning tasks. It masterfully uses a combination of PHP to structure the page and extensive JavaScript/AJAX to create a dynamic, single-page application experience. It guides the teacher through a complex process in a clear, step-by-step manner, hiding and showing relevant options as needed. This is the primary interface for content creators and instructors within the system.
+`assign_mission.php` 是一個複雜且使用者友好的精靈，用於創建學習任務。它巧妙地結合了 PHP 來構建頁面結構和大量的 JavaScript/AJAX 來創建動態的單頁應用程式體驗。它以清晰、分步的方式引導教師完成複雜的過程，並根據需要隱藏和顯示相關選項。這是系統中內容創建者和教師的主要介面。

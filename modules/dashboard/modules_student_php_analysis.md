@@ -1,34 +1,34 @@
-# dashboard/modules_student.php Analysis
+# dashboard/modules_student.php 分析
 
-This file generates the **student's mission dashboard**. It's a comprehensive page that lists all assigned tasks, tracks their progress, and provides entry points to start or continue them.
+此檔案生成**學生的任務儀表板**。它是一個綜合頁面，列出所有已分配的任務，追蹤其進度，並提供開始或繼續任務的入口點。
 
-### Key Functionality:
+### 主要功能：
 
-1.  **Mission Retrieval and Display**:
-    *   It includes `mission_action_general.php`, which appears to be the core script responsible for fetching all relevant missions for the logged-in student from the database.
-    *   The main part of the file is a `foreach` loop that iterates through the `$sub_mission` array (provided by the included script) and generates an HTML "card" for each mission.
-    *   Each card displays crucial information:
-        *   Mission type, name, and assigning teacher.
-        *   A countdown timer for the deadline.
-        *   A progress bar showing the completion percentage (`$finish_node_count / $all_node_count`).
+1.  **任務檢索和顯示**：
+    *   它包含 `mission_action_general.php`，這似乎是負責從資料庫中獲取登入學生所有相關任務的核心腳本。
+    *   檔案的主要部分是一個 `foreach` 循環，它遍歷 `$sub_mission` 陣列（由包含的腳本提供），並為每個任務生成一個 HTML「卡片」。
+    *   每張卡片顯示關鍵信息：
+        *   任務類型、名稱和指派教師。
+        *   截止日期的倒計時器。
+        *   顯示完成百分比的進度條（`$finish_node_count / $all_node_count`）。
 
-2.  **Filtering and View Options**:
-    *   Similar to the teacher's dashboard, students can filter their missions. However, the options are simpler:
-        *   **Assignor**: Teacher-assigned vs. Self-assigned vs. Parent/Tutor-assigned.
-        *   **Mission Type**: Filter by the type of task (e.g., video, practice).
-        *   **Status**: In Progress, Expired, or Completed.
-    *   It also supports switching between a **Card View** and a **List View**, and this preference is saved per-user in the `user_person_config` table.
+2.  **篩選和查看選項**：
+    *   與教師儀表板類似，學生可以篩選他們的任務。但是，選項更簡單：
+        *   **指派者**：教師指派 vs. 自我指派 vs. 家長/導師指派。
+        *   **任務類型**：按任務類型篩選（例如，影片、練習）。
+        *   **狀態**：進行中、已過期或已完成。
+    *   它還支持在**卡片視圖**和**列表視圖**之間切換，並且此偏好會保存在 `user_person_config` 表中，每個使用者獨立保存。
 
-3.  **Interactive Elements**:
-    *   **Mission Details**: Clicking on a mission card triggers an AJAX call (handled in `assignment.js`) to `prodb_mission_info_seri.php` to fetch and display detailed information about the mission's nodes or content.
-    *   **Starting a Mission**: The mission title is a link that takes the student to the actual task. The code constructs the appropriate URL, handling different mission types (e.g., regular missions vs. Google Form questionnaires).
-    *   **Calendar Integration**: Each mission has an icon allowing the student to add the task to their personal in-system calendar (`srl/calender_todolist.php`). This is handled via a sophisticated JavaScript modal window.
+3.  **互動元素**：
+    *   **任務詳細信息**：點擊任務卡片會觸發 AJAX 調用（在 `assignment.js` 中處理）到 `prodb_mission_info_seri.php`，以獲取並顯示任務節點或內容的詳細信息。
+    *   **開始任務**：任務標題是一個鏈接，將學生帶到實際任務。代碼構建適當的 URL，處理不同的任務類型（例如，常規任務 vs. Google 表單問卷）。
+    *   **日曆整合**：每個任務都有一個圖標，允許學生將任務添加到他們的系統內個人日曆（`srl/calender_todolist.php`）。這通過一個複雜的 JavaScript 模態窗口處理。
 
-4.  **Special Handling**:
-    *   **Google Forms**: It has specific logic to correctly format URLs for Google Form-based missions (questionnaires), pre-filling student information where possible.
-    *   **Mobile/Tablet**: It detects if the user is on a mobile device and may adjust how mission windows are opened (e.g., forcing a new tab).
-    *   **Group Leaders**: It checks if the student is a group leader and, if so, may display additional links to view their group's progress.
+4.  **特殊處理**：
+    *   **Google 表單**：它具有特定的邏輯，可以正確格式化基於 Google 表單的任務（問卷）的 URL，並在可能的情況下預填充學生信息。
+    *   **行動/平板**：它檢測使用者是否在行動裝置上，並可能調整任務窗口的打開方式（例如，強制在新標籤中打開）。
+    *   **組長**：它檢查學生是否是組長，如果是，可能會顯示額外的鏈接以查看其組的進度。
 
-### Conclusion:
+### 結論：
 
-`modules_student.php` is the student's central hub for all learning tasks. It's a feature-rich interface that provides a clear overview of assigned work, tracks progress, and allows for easy navigation to the learning activities themselves. Like the teacher's dashboard, it relies on a combination of server-side data preparation and client-side JavaScript for its interactivity and dynamic content loading.
+`modules_student.php` 是學生所有學習任務的中心樞紐。它是一個功能豐富的介面，提供已分配工作的清晰概覽，追蹤進度，並允許輕鬆導航到學習活動本身。與教師儀表板一樣，它依賴於伺服器端數據準備和客戶端 JavaScript 的組合來實現其互動性和動態內容加載。

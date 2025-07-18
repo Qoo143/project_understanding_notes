@@ -1,32 +1,32 @@
-# srl/learning_regulated_fillout.php Analysis
+# srl/learning_regulated_fillout.php 分析
 
-This file is the **interface for students to fill out the SRL checklists and rubrics** that were created by the teacher in `checklists_new.php`. It's a dynamic page that renders the correct form based on the type of checklist being used.
+此檔案是**學生填寫教師在 `checklists_new.php` 中創建的 SRL 檢核表和評分標準的介面**。它是一個動態頁面，根據所使用的檢核表類型呈現正確的表單。
 
-### Key Functionality:
+### 主要功能：
 
-1.  **Form Rendering**:
-    *   The script receives a `check_list` SN and a `mission_sn` from the URL.
-    *   It makes an AJAX call to `prodb_learning_regulated_fillout.php` (action: `getTable`) to fetch the structure of the specified checklist (title, criteria, scoring, and type).
-    *   Based on the `type` of the checklist, it dynamically renders one of two main interfaces:
-        *   **Checklist (`檢核單`)**: Displays each criterion with "Yes" and "No" radio buttons.
-        *   **Rubric/Score Sheet (`評分表`)**: Displays each criterion with a series of stars (`<i class="far fa-star"></i>`) that the user can click to assign a score.
+1.  **表單渲染**：
+    *   腳本從 URL 接收 `check_list` SN 和 `mission_sn`。
+    *   它向 `prodb_learning_regulated_fillout.php`（動作：`getTable`）發出 AJAX 調用，以獲取指定檢核表的結構（標題、標準、評分和類型）。
+    *   根據檢核表的 `type`，它動態渲染以下兩種主要介面之一：
+        *   **檢核單**：顯示每個標準，帶有「是」和「否」單選按鈕。
+        *   **評分表**：顯示每個標準，帶有一系列星號（`<i class="far fa-star"></i>`），使用者可以點擊以分配分數。
 
-2.  **Handling Different Rubric Types**:
-    *   The page has complex logic to handle the four different types of forms:
-        *   **Checklist (Type 1)**: A simple form for self-assessment.
-        *   **Peer-Review (Type 2, `同儕評分表`)**: The left panel lists all classmates. The student selects a classmate to score them using the rubric on the right.
-        *   **Inter-Group (Type 3, `組間評分表`)**: The left panel lists all other groups in the class. The student (likely a group leader) selects a group to score.
-        *   **Intra-Group (Type 4, `組內評分表`)**: The left panel lists the members of the student's *own* group, allowing them to score each other.
+2.  **處理不同評分表類型**：
+    *   頁面具有複雜的邏輯來處理四種不同類型的表單：
+        *   **檢核單（類型 1）**：一個簡單的自我評估表單。
+        *   **同儕評分（類型 2，`同儕評分表`）**：左側面板列出所有同學。學生選擇一位同學，然後使用右側的評分標準對其進行評分。
+        *   **組間評分（類型 3，`組間評分表`）**：左側面板列出班級中所有其他組。學生（可能是組長）選擇一個組進行評分。
+        *   **組內評分（類型 4，`組內評分表`）**：左側面板列出學生自己組的成員，允許他們互相評分。
 
-3.  **User Interaction and Data Submission**:
-    *   **Student View**: Students interact with the form (clicking radio buttons or stars) and can add a text comment in the "Other Suggestions" box. When finished, they click "Submit," which sends the results to the backend.
-    *   **Teacher View**: The page also supports a "view" mode for teachers (`$_GET['type'] == 'view'`). In this mode, the form is disabled, and the teacher can select a student from a dropdown to see their submitted form.
-    *   **AJAX Submission**: All data submissions (saving scores or checklist answers) are handled via AJAX calls to `prodb_learning_regulated_fillout.php` (actions: `save_score`, `save_check`).
+3.  **使用者互動和數據提交**：
+    *   **學生視圖**：學生與表單互動（點擊單選按鈕或星號），並可以在「其他建議」框中添加文本評論。完成後，他們點擊「提交」，將結果發送到後端。
+    *   **教師視圖**：頁面還支持教師的「查看」模式（`$_GET['type'] == 'view'`）。在此模式下，表單被禁用，教師可以從下拉菜單中選擇一名學生以查看其提交的表單。
+    *   **AJAX 提交**：所有數據提交（保存分數或檢核表答案）都通過 AJAX 調用 `prodb_learning_regulated_fillout.php`（動作：`save_score`、`save_check`）處理。
 
-4.  **State Management**:
-    *   The page makes extensive use of JavaScript and jQuery to manage the UI state, such as switching between target students/groups, highlighting selected scores, and showing/hiding the correct buttons.
-    *   It also fetches and displays previously submitted answers, disabling the form if the student has already completed it.
+4.  **狀態管理**：
+    *   頁面廣泛使用 JavaScript 和 jQuery 來管理使用者介面狀態，例如在目標學生/組之間切換、突出顯示選定的分數以及顯示/隱藏正確的按鈕。
+    *   它還獲取並顯示先前提交的答案，如果學生已完成，則禁用表單。
 
-### Conclusion:
+### 結論：
 
-`learning_regulated_fillout.php` is the student-facing counterpart to the checklist creation tool. It's a highly interactive and versatile page that can render many different kinds of assessment forms. Its primary role is to present the form defined by the teacher and capture the student's self-assessment or peer-review data, which is crucial for the self-regulated learning process.
+`learning_regulated_fillout.php` 是檢核表創建工具的學生端對應部分。它是一個高度互動且多功能的頁面，可以渲染多種評估表單。其主要作用是呈現教師定義的表單，並捕獲學生的自我評估或同儕評分數據，這對於自律學習過程至關重要。

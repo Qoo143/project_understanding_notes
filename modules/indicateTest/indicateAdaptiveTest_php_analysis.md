@@ -1,30 +1,30 @@
-# indicateTest/indicateAdaptiveTest.php Analysis
+# indicateTest/indicateAdaptiveTest.php 分析
 
-This file is the **executor** for the modern, class-based adaptive test. It works in close conjunction with the `indicateAdaptiveTestStructure` class to deliver a more robust and maintainable testing experience.
+此檔案是現代、基於班級的適性測驗的**執行器**。它與 `indicateAdaptiveTestStructure` 類別密切配合，以提供更穩健和可維護的測驗體驗。
 
-## Functional Breakdown:
+## 功能分解：
 
-1.  **Coupling with `indicateAdaptiveTestStructure`**:
-    *   The file begins by including `indicateAdaptiveTestStructure.php`, signifying its direct dependency.
-    *   The entire test state is managed through an **instance** of the `indicateAdaptiveTestStructure` class. This object is serialized and stored in `$_SESSION['indicateTest']`. This is a significant architectural improvement over the older implementation, which stored a large, unstructured array in the session.
+1.  **與 `indicateAdaptiveTestStructure` 的耦合**：
+    *   檔案開頭包含 `indicateAdaptiveTestStructure.php`，表示其直接依賴性。
+    *   整個測驗狀態通過 `indicateAdaptiveTestStructure` 類別的**實例**進行管理。此物件被序列化並存儲在 `$_SESSION['indicateTest']` 中。這比舊的實現（在會話中存儲一個大型、非結構化的陣列）是一個顯著的架構改進。
 
-2.  **Test Lifecycle Management**:
-    *   **Initialization**: On the first load (`!isset($_SESSION['indicateTest'])`), it creates a new instance of `indicateAdaptiveTestStructure` and immediately calls `checkExamPause()` to handle test resumption.
-    *   **Answer Processing**: When a user submits an answer (`isset($_POST['user_answer'])`), it unserializes the test object from the session, calls its `checkAns()` method to process the answer, and then serializes the updated object back into the session.
-    *   **Fetching the Next Item**: After processing the answer, it calls the object's `getNextItem()` method to determine the `item_sn` for the next question.
-    *   **Test Interruption**: It includes clean logic for handling test interruption (`$_GET['stopExam']==1`), redirecting users to the appropriate dashboard based on their role.
+2.  **測驗生命週期管理**：
+    *   **初始化**：首次加載時（`!isset($_SESSION['indicateTest'])`），它會創建 `indicateAdaptiveTestStructure` 的新實例，並立即調用 `checkExamPause()` 來處理測驗恢復。
+    *   **答案處理**：當使用者提交答案（`isset($_POST['user_answer'])`）時，它會從會話中反序列化測驗物件，調用其 `checkAns()` 方法來處理答案，然後將更新後的物件序列化回會話中。
+    *   **獲取下一個項目**：處理答案後，它會調用物件的 `getNextItem()` 方法來確定下一個問題的 `item_sn`。
+    *   **測驗中斷**：它包含處理測驗中斷（`$_GET['stopExam']==1`）的清晰邏輯，將使用者重定向到基於其角色的適當儀表板。
 
-3.  **Frontend Rendering (`showItem`)**:
-    *   The `showItem` function in this file is responsible for fetching item data from the database based on the `item_sn` and generating the question HTML.
-    *   It supports various media types (images, audio, video) and question formats (including multiple choice).
-    *   It renders a modern UI, complete with a modal confirmation for interrupting the test and a mechanism to prevent duplicate form submissions.
+3.  **前端渲染 (`showItem`)**：
+    *   此檔案中的 `showItem` 函數負責根據 `item_sn` 從資料庫中獲取項目數據並生成問題 HTML。
+    *   它支持各種媒體類型（圖像、音頻、影片）和問題格式（包括多選題）。
+    *   它渲染一個現代使用者介面，包括用於中斷測驗的模態確認和防止重複表單提交的機制。
 
-## Comparison with the Older `indicateTest.php`:
+## 與舊版 `indicateTest.php` 的比較：
 
-*   **Architecture**: This is the key difference. The new version uses an **object-oriented approach**, encapsulating the complex test logic within the `indicateAdaptiveTestStructure` class. This file acts as a clean driver for that class. The old version was procedural, with scattered state and functions.
-*   **State Management**: The new version uses a **serialized object** for state persistence, which is cleaner and safer. The old version directly manipulated a large, complex session array, which is error-prone and hard to maintain.
-*   **Code Clarity**: The logic is much clearer. This file focuses on the simple loop of "initialize, process answer, get next item, display," while all the complex adaptive logic is handled internally by the `indicateAdaptiveTestStructure` class.
+*   **架構**：這是關鍵區別。新版本採用**物件導向方法**，將複雜的測驗邏輯封裝在 `indicateAdaptiveTestStructure` 類別中。此檔案充當該類別的乾淨驅動程式。舊版本是程序性的，狀態和函數分散。
+*   **狀態管理**：新版本使用**序列化物件**進行狀態持久化，這更清晰、更安全。舊版本直接操作一個大型、複雜的會話陣列，這容易出錯且難以維護。
+*   **代碼清晰度**：邏輯更清晰。此檔案專注於「初始化、處理答案、獲取下一個項目、顯示」的簡單循環，而所有複雜的適性邏輯都由 `indicateAdaptiveTestStructure` 類別內部處理。
 
-## Conclusion:
+## 結論：
 
-`modules/indicateTest/indicateAdaptiveTest.php` is the **execution page for the modern adaptive testing system**. It represents a significant refactoring and upgrade from the legacy system (`indicateTest.php` and `indicateTestFun.php`), adopting a more robust, object-oriented design pattern that improves maintainability and reliability.
+`modules/indicateTest/indicateAdaptiveTest.php` 是**現代適性測驗系統的執行頁面**。它代表了對舊系統（`indicateTest.php` 和 `indicateTestFun.php`）的重大重構和升級，採用了更穩健、物件導向的設計模式，提高了可維護性和可靠性。

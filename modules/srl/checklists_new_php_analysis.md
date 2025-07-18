@@ -1,36 +1,36 @@
-# srl/checklists_new.php Analysis
+# srl/checklists_new.php 分析
 
-This file provides the user interface for teachers to **create, manage, and view self-regulated learning (SRL) checklists and rubrics**. It's a comprehensive tool that allows teachers to design various types of assessment forms.
+此檔案為教師提供使用者介面，用於**創建、管理和查看自律學習 (SRL) 檢核表和評分標準**。這是一個全面的工具，允許教師設計各種評估表單。
 
-### Key Functionality:
+### 主要功能：
 
-1.  **Main View - List of Checklists**:
-    *   The default view is a list of all checklists the teacher has created.
-    *   **Filtering**: Teachers can filter this list by academic semester and by the type of form.
-    *   **Actions**: For each checklist in the list, several actions are available:
-        *   **View**: Preview the checklist.
-        *   **Edit**: Modify the checklist (only if it hasn't been "exported" or used in a mission).
-        *   **Copy**: Duplicate an existing checklist to create a new one.
-        *   **Delete**: Remove a checklist.
-        *   **Export/Lock**: A key feature is the ability to "export" a checklist. This locks the checklist, preventing further edits, and makes it available to be assigned as a mission.
+1.  **主視圖 - 檢核表列表**：
+    *   預設視圖是教師創建的所有檢核表列表。
+    *   **篩選**：教師可以按學期和表單類型篩選此列表。
+    *   **操作**：列表中每個檢核表都有多個可用操作：
+        *   **查看**：預覽檢核表。
+        *   **編輯**：修改檢核表（僅當它尚未「匯出」或用於任務時）。
+        *   **複製**：複製現有檢核表以創建新檢核表。
+        *   **刪除**：刪除檢核表。
+        *   **匯出/鎖定**：一個關鍵功能是「匯出」檢核表的能力。這會鎖定檢核表，防止進一步編輯，並使其可用於分配為任務。
 
-2.  **Checklist Creation/Editing Interface**:
-    *   Clicking "Add Checklist" or "Edit" opens a modal window with a step-by-step wizard.
-    *   **Step 1: Form Type**: The teacher first chooses the type of form they want to create:
-        *   `檢核單` (Checklist): A simple yes/no checklist.
-        *   `同儕評分表` (Peer-review Rubric): A rubric for students to score their peers.
-        *   `組間評分表` (Inter-group Rubric): A rubric for scoring other groups.
-        *   `組內評分表` (Intra-group Rubric): A rubric for students to score members within their own group.
-    *   **Step 2: Build Form**: The teacher defines the content of the form:
-        *   **Title**: The name of the checklist.
-        *   **Criteria**: They can add, edit, and delete rows, with each row representing a "scoring standard" or criterion.
-        *   **Scoring**: For each criterion, they can assign a point value.
-    *   **Step 3: Confirm Form**: A final preview of the form is shown before it is saved.
+2.  **檢核表創建/編輯介面**：
+    *   點擊「新增檢核表」或「編輯」會打開一個帶有分步精靈的模態窗口。
+    *   **步驟 1: 表單類型**：教師首先選擇他們想要創建的表單類型：
+        *   `檢核單`：一個簡單的是/否檢核表。
+        *   `同儕評分表`：用於學生評分其同儕的評分標準。
+        *   `組間評分表`：用於評分其他組的評分標準。
+        *   `組內評分表`：用於學生評分其組內成員的評分標準。
+    *   **步驟 2: 構建表單**：教師定義表單的內容：
+        *   **標題**：檢核表的名稱。
+        *   **標準**：他們可以添加、編輯和刪除行，每行代表一個「評分標準」或準則。
+        *   **評分**：對於每個準則，他們可以分配一個分數值。
+    *   **步驟 3: 確認表單**：在保存之前顯示表單的最終預覽。
 
-3.  **Backend Communication**:
-    *   All actions (loading data, creating, saving, deleting, exporting) are handled via AJAX requests to the backend processor, `prodb_checklists_new.php`.
-    *   The frontend sends the form data (title, criteria, scores, etc.) to the backend, which then performs the necessary database operations on the `check_list_table`.
+3.  **後端通訊**：
+    *   所有操作（加載數據、創建、保存、刪除、匯出）都通過 AJAX 請求到後端處理器 `prodb_checklists_new.php` 處理。
+    *   前端將表單數據（標題、標準、分數等）發送到後端，後端然後在 `check_list_table` 上執行必要的資料庫操作。
 
-### Conclusion:
+### 結論：
 
-`checklists_new.php` is a powerful and flexible tool for creating various types of rubrics and checklists to support self-regulated learning activities. It provides a user-friendly, wizard-based interface for a complex creation process. The distinction between "draft" and "exported" (locked) checklists is a key feature, ensuring that once a form is used in a live mission, its structure cannot be changed, thus maintaining data integrity for any results collected.
+`checklists_new.php` 是一個強大而靈活的工具，用於創建各種評分標準和檢核表，以支持自律學習活動。它為複雜的創建過程提供了使用者友好的、基於精靈的介面。「草稿」和「匯出」（鎖定）檢核表之間的區別是一個關鍵功能，確保一旦表單用於實時任務，其結構就無法更改，從而維護收集到的任何結果的數據完整性。

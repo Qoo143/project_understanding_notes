@@ -1,36 +1,36 @@
-# indicateTest/adaptiveExamResult.php Analysis
+# indicateTest/adaptiveExamResult.php 分析
 
-This file is responsible for generating the detailed diagnostic report that a student sees after completing an adaptive test. It is designed to be called by `indicateAdaptiveTestStructure.php` once the test is finished.
+此檔案負責生成學生完成適性測驗後看到的詳細診斷報告。它設計為在測驗完成後由 `indicateAdaptiveTestStructure.php` 調用。
 
-### Key Functionality:
+### 主要功能：
 
-1.  **Data Retrieval**:
-    *   It receives the `user_id` and `result_sn` (mission ID) as parameters.
-    *   It queries the `exam_record_indicate` table to fetch the final, saved record of the completed test, including the sequence of questions (`questions`), the final status of all small nodes (`skill_remedy_rate_s`), and big nodes (`skill_remedy_rate_b`).
-    *   It re-instantiates the `indicateAdaptiveTestStructure` class to get the original node order and other metadata about the mission.
+1.  **數據檢索**：
+    *   它接收 `user_id` 和 `result_sn`（任務 ID）作為參數。
+    *   它查詢 `exam_record_indicate` 表以獲取已完成測驗的最終保存記錄，包括問題序列（`questions`）、所有小節點（`skill_remedy_rate_s`）和大節點（`skill_remedy_rate_b`）的最終狀態。
+    *   它重新實例化 `indicateAdaptiveTestStructure` 類別以獲取原始節點順序和有關任務的其他元數據。
 
-2.  **Rich Report Generation**:
-    *   The core of this file is to build a comprehensive HTML table that breaks down the student's performance by knowledge node.
-    *   For each `sNode` (small node) tested, it displays:
-        *   **Mastery Status**: An 'O' (pass) or 'X' (fail) icon, based on the final node status. This icon is a link that opens a popup (`viewErrorsIndicater`) showing the specific questions related to that node.
-        *   **Learning Resources**: It dynamically generates links to various learning resources associated with that node, such as:
-            *   AI Study Companion (`AI學伴`)
-            *   Videos (`影片`)
-            *   Practice Questions (`練習題`)
-            *   Fill-in-the-blank Questions (`填充題`)
-            *   Dynamic Assessments (`動態評量`)
-            *   Interactive Teaching (`互動教學`)
-            *   Student Notes (`筆記`)
-        *   It also queries other tables (e.g., `prac_answer`, `video_review_record`) to fetch and display the student's completion status and accuracy for these supplementary resources, providing a holistic view of their learning.
+2.  **豐富的報告生成**：
+    *   此檔案的核心是構建一個全面的 HTML 表格，按知識節點分解學生的表現。
+    *   對於每個測試的 `sNode`（小節點），它顯示：
+        *   **掌握狀態**：一個「O」（通過）或「X」（失敗）圖標，基於最終節點狀態。此圖標是一個鏈接，打開一個彈出窗口（`viewErrorsIndicater`），顯示與該節點相關的特定問題。
+        *   **學習資源**：它動態生成與該節點相關的各種學習資源的鏈接，例如：
+            *   AI 學習夥伴（`AI學伴`）
+            *   影片（`影片`）
+            *   練習題（`練習題`）
+            *   填空題（`填充題`）
+            *   動態評估（`動態評量`）
+            *   互動教學（`互動教學`）
+            *   學生筆記（`筆記`）
+        *   它還查詢其他表格（例如，`prac_answer`、`video_review_record`）以獲取和顯示學生對這些補充資源的完成狀態和準確性，提供其學習的整體視圖。
 
-3.  **Gamification and Feedback**:
-    *   It integrates the gamification (coin reward) logic.
-    *   It receives coin information (`$update_user_coins`, `$extra_coins`) from the calling context.
-    *   It uses the `swal` (SweetAlert) JavaScript library to display detailed, user-friendly pop-up messages explaining how many coins were earned and why (e.g., based on performance improvement, first-time completion, or teacher bonuses).
+3.  **遊戲化和反饋**：
+    *   它整合了遊戲化（金幣獎勵）邏輯。
+    *   它從調用上下文接收金幣信息（`$update_user_coins`、`$extra_coins`）。
+    *   它使用 `swal`（SweetAlert）JavaScript 庫顯示詳細、使用者友好的彈出消息，解釋賺取了多少金幣以及原因（例如，基於表現改進、首次完成或教師獎勵）。
 
-4.  **Cleanup**:
-    *   After generating the report, it deletes the temporary test record from `exam_record_indicate_tmp` to ensure the test cannot be resumed.
+4.  **清理**：
+    *   生成報告後，它會從 `exam_record_indicate_tmp` 中刪除臨時測試記錄，以確保測驗無法恢復。
 
-### Conclusion:
+### 結論：
 
-`adaptiveExamResult.php` is a sophisticated report generator that transforms the raw test data into a meaningful and actionable diagnostic report for the student. It not only shows the test results but also acts as a central hub, guiding the student toward relevant learning materials to address their identified weaknesses. The integration of gamification feedback makes the experience more engaging.
+`adaptiveExamResult.php` 是一個複雜的報告生成器，它將原始測試數據轉換為對學生有意義且可操作的診斷報告。它不僅顯示測試結果，還充當一個中心樞紐，引導學生找到相關的學習材料以解決他們已識別的弱點。遊戲化反饋的整合使體驗更具吸引力。

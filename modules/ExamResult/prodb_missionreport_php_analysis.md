@@ -1,35 +1,35 @@
-# ExamResult/prodb_missionreport.php Analysis
+# ExamResult/prodb_missionreport.php 分析
 
-This file is the **backend data provider for the teacher's mission report page** (`missionReport.php`). It's a pure logic file responsible for handling AJAX requests, fetching vast amounts of data from various database tables, and processing it into a format that the frontend can use to display the complex comparison grid.
+此檔案是**教師任務報告頁面**（`missionReport.php`）的後端數據提供者。它是一個純邏輯檔案，負責處理 AJAX 請求，從各種資料庫表中獲取大量數據，並將其處理成前端可用於顯示複雜比較網格的格式。
 
-### Key Functionality:
+### 主要功能：
 
-1.  **API Endpoint Router**:
-    *   It uses a `switch` statement on the `$_POST['act']` parameter to handle different requests from the frontend.
-    *   **`getSelectOpt`**: Fetches the necessary data to populate the filter dropdowns on the report page (e.g., lists of classes for the logged-in teacher).
-    *   **`getMissionList`**: This action is for the *student's* view of their own report. It fetches all of a single student's completed missions and their scores across multiple attempts.
-    *   **`getMissionReport`**: This is the main action for the *teacher's* report. It's the most complex part of the file.
-    *   **`getMissionAssigner`**: Retrieves a list of teachers who have assigned missions to a specific class.
+1.  **API 端點路由器**：
+    *   它使用 `$_POST['act']` 參數上的 `switch` 語句來處理來自前端的不同請求。
+    *   **`getSelectOpt`**：獲取填充報告頁面上的篩選下拉菜單所需的數據（例如，登入教師的班級列表）。
+    *   **`getMissionList`**：此操作用於**學生**查看自己的報告。它獲取單個學生的所有已完成任務及其在多次嘗試中的分數。
+    *   **`getMissionReport`**：這是**教師**報告的主要操作。它是檔案中最複雜的部分。
+    *   **`getMissionAssigner`**：檢索已將任務分配給特定班級的教師列表。
 
-2.  **Complex Data Aggregation (`getMissionReport`)**:
-    *   **Multi-Table Queries**: This action performs incredibly complex data aggregation. The main query is a `UNION` of multiple `SELECT` statements, each designed to fetch results from a different type of exam record table:
-        *   `exam_record_indicate` (for adaptive tests)
-        *   `exam_record_indicator` (for older indicator-based tests)
-        *   `eduexam_record` (for general educational exams)
-        *   `mission_stud_record` (for SRL and other non-standard missions)
-        *   `exam_record_literacy_interactive` (for literacy tests)
-    *   **Data Grouping**: It uses `GROUP_CONCAT` extensively to aggregate multiple attempts for the same mission into a single row, with scores and exam IDs separated by a special delimiter (`@XX@`). This is a key technique for collecting all the data needed for comparison.
-    *   **Student & Mission Filtering**: It takes the filter parameters from the AJAX request (class, semester, assignor) and builds the appropriate `WHERE` clauses to fetch only the relevant data.
+2.  **複雜數據聚合 (`getMissionReport`)**：
+    *   **多表查詢**：此操作執行令人難以置信的複雜數據聚合。主要查詢是多個 `SELECT` 語句的 `UNION`，每個語句都旨在從不同類型的考試記錄表中獲取結果：
+        *   `exam_record_indicate`（用於適性測驗）
+        *   `exam_record_indicator`（用於舊的基於指標的測驗）
+        *   `eduexam_record`（用於一般教育考試）
+        *   `mission_stud_record`（用於 SRL 和其他非標準任務）
+        *   `exam_record_literacy_interactive`（用於素養測驗）
+    *   **數據分組**：它廣泛使用 `GROUP_CONCAT` 將同一任務的多次嘗試聚合到單行中，分數和考試 ID 由特殊分隔符（`@XX@`）分隔。這是收集比較所需所有數據的關鍵技術。
+    *   **學生和任務篩選**：它從 AJAX 請求中獲取篩選參數（班級、學期、指派者），並構建適當的 `WHERE` 子句以僅獲取相關數據。
 
-3.  **Data Processing and Structuring**:
-    *   After fetching the aggregated data, it loops through the results to structure them for the frontend.
-    *   For each mission, it creates an array of student results.
-    *   For each student, it creates an array of their attempts at that mission, including the score and a pre-formatted URL to the detailed report for that specific attempt.
-    *   This nested data structure is then encoded as JSON and sent back to the frontend, where JavaScript code can easily parse it to build the report grid.
+3.  **數據處理和結構化**：
+    *   獲取聚合數據後，它會遍歷結果以將其結構化以供前端使用。
+    *   對於每個任務，它會創建一個學生結果陣列。
+    *   對於每個學生，它會創建一個他們在該任務上的嘗試陣列，包括分數和指向該特定嘗試的詳細報告的預格式化 URL。
+    *   然後將此嵌套數據結構編碼為 JSON 並發送回前端，其中 JavaScript 代碼可以輕鬆解析它以構建報告網格。
 
-4.  **Report URL Generation**:
-    *   A significant part of the logic is dedicated to generating the correct URL for the detailed report (`viewErrors.php`, `adaptiveExamResult.php`, etc.) based on the `mission_type` of each record. This ensures that clicking on a score in the report grid takes the user to the correct type of report page.
+4.  **報告 URL 生成**：
+    *   邏輯的一個重要部分是根據每個記錄的 `mission_type` 生成詳細報告（`viewErrors.php`、`adaptiveExamResult.php` 等）的正確 URL。這確保了點擊報告網格中的分數會將使用者帶到正確的報告頁面。
 
-### Conclusion:
+### 結論：
 
-`prodb_missionreport.php` is the powerful data engine behind the mission report feature. It demonstrates advanced SQL techniques (especially `UNION` and `GROUP_CONCAT`) to aggregate data from many different parts of the system into a single, coherent report. It completely separates the data-access and business logic from the presentation layer (`missionReport.php`), which is a strong architectural pattern.
+`prodb_missionreport.php` 是任務報告功能背後的強大數據引擎。它展示了高級 SQL 技術（特別是 `UNION` 和 `GROUP_CONCAT`），將來自系統許多不同部分的數據聚合到一個連貫的報告中。它將數據訪問和業務邏輯與呈現層（`missionReport.php`）完全分離，這是一種強大的架構模式。
