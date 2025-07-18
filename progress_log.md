@@ -50,3 +50,71 @@
     - **完成所有模組分析，並提交總結報告。**
 - **目前任務：** 待命。
 - **待辦事項：** 等待新指令。
+
+## 2025年7月18日 星期五
+
+### 工作1: 閱讀專案模式
+
+- **任務：** 全面分析和理解整個專案，確保模組閱讀的完整性，並分析所有資料夾中的重要檔案。
+- **已完成：**
+    - 分析 `login.php`。
+    - 分析 `ACL.php`。
+    - 分析 `addparent.php`。
+    - 分析 `adl_material_list_tl_assessment.php`。
+    - 分析 `adl_material_new.php`。
+    - 分析 `adl_material_tl_assessment.php`。
+    - 分析 `adl_material_workshop.php`。
+    - 分析 `adl_video.php`。
+    - 分析 `agreement.php`。
+    - 分析 `api_login.php`。
+    - 分析 `auth_checkreturn.php`。
+    - 分析 `breadcrumb.php`。
+    - 分析 `CHANGELOG`。
+    - 分析 `choiceIdentity.php`。
+    - 分析 `CLAUDE.md`。
+    - 分析 `composer.json`。
+    - 分析 `confirm.php`。
+    - 分析 `favicon.ico`。
+    - 分析 `feet_new.php`。
+    - 分析 `feet.php`。
+    - 分析 `googleLogin.php`。
+    - 分析 `HashedFileCheck.php`。
+    - 分析 `head_iframe.php`。
+    - 分析 `index_AIAL2.php`。
+    - 分析 `index_material.php`。
+    - 分析 `lecturer.php`。
+    - 分析 `login_cloud.php`。
+    - 分析 `login_cooc.php`。
+    - 分析 `login_openID.php`。
+    - 分析 `login4ck.php`。
+    - 分析 `loginAuth.php`。
+    - 分析 `logout_msg.php`。
+    - 分析 `logout_openID.php`。
+    - 分析 `logout.php`。
+    - 分析 `mail_login_tip.md`。
+    - 分析 `maintain.md`。
+    - 分析 `modules.php`。
+    - 分析 `modulesNews_data.md`。
+    - 分析 `new_styleGuide.md`。
+    - 分析 `out_of_service.md`。
+    - 分析 `package_lock.md`。
+    - 分析 `package.md`。
+    - 分析 `Privacy_Page.md`。
+    - 分析 `PrivacyUpdate.md`。
+    - 分析 `prodb_user_recovery.md`。
+    - 分析 `pw_confirmation.md`。
+    - 分析 `pw_reset.php`。
+    - 分析 `QAfeedback.php`。
+    - 分析 `quickLogin4LAB.php`。
+    - 分析 `roles_cooc.php`。
+    - 分析 `statement.php`。
+- **目前任務：** 繼續全面分析專案文件。
+- **待辦事項：** 繼續閱讀和分析 `ntcu-nbnat-aial` 專案中的其他重要檔案。
+
+### 開始分析 `statement.php`
+### 開始移動 `config.md` 到 `functions` 資料夾 (失敗)
+### 再次嘗試移動 `config.md` 到 `functions` 資料夾 (失敗)
+### 再次嘗試移動 `config.md` 到 `functions` 資料夾 (失敗)
+### 暫停檔案移動任務，繼續分析文件
+2025-07-18: 完成專案初步掃描，並將理解統整至 gemini_work_details.md。
+2025-07-18: 完成專案理解統整，並更新至 gemini_work_details.md。

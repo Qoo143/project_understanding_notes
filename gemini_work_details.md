@@ -1,256 +1,39 @@
-# Gemini 工作詳細筆記
+# 因材網專案核心理解 (ntcu-nbnat-aial)
 
-## 專案常用資訊
+## 專案概述與架構
+因材網是一個基於 PHP 的 Web 應用程式，採用類似 MVC 的架構模式。前端主要使用 Vue.js、jQuery 和 AJAX 進行動態互動，後端則以 PHP 處理業務邏輯和資料庫操作。專案結構清晰，包含 `classes/` (類別定義)、`include/` (通用函數與配置)、`modules/` (功能模組)、`security/` (安全相關) 等核心目錄。
 
-- **專案名稱：** ntcu-nbnat-aial
-- **專案路徑：** C:/Users/User/Desktop/ntcu-nbnat-aial/
+## 核心組件與職責
+- **`modules_new.php`**: 應用程式的主要入口點和控制器，負責初始化環境、安全檢查、模組載入和路由。
+- **`auth_chk.php`**: 核心身份驗證與授權檢查，使用 PEAR Auth 庫管理用戶登入狀態、會話超時和權限導向。
+- **`turnpage.php`**: 核心 AJAX 請求路由器，接收前端請求，解析路由並引入對應的後端邏輯檔案，同時進行安全檢查。
+- **`config.php`**: 全局配置檔案，定義了大量常量，包括系統路徑、用戶權限等級、檔案上傳路徑、郵件服務配置等。
+- **PEAR Auth 庫 (`Auth.php`, `Auth_Container_DB.php`)**: 負責用戶身份驗證，`Auth_Container_DB.php` 處理與資料庫的互動，已客製化為使用 PDO。
+- **`adp_core_function.php`**: 大量通用函數的集合，涵蓋日期時間、學期轉換、用戶資訊查詢、字串加密解密、XSS 防護、檔案處理等。
+- **`adp_core_security.php`**: 基礎安全防護，特別是 XSS 防禦，定義了 `xss_filter` 和 `filter` 函數。
+- **`XAPIManager` 類別 (由 `xapi/prodb_xapi_proxy.php` 調用)**: 管理 xAPI 學習記錄，將應用程式事件轉換為 xAPI 語句並發送到 LRS，具備離線儲存和批次處理能力。
+- **適性測驗模組 (`indicateAdaptiveTestStructure`, `indicateTestFun`)**: 處理適性測驗的核心邏輯，包括測驗初始化、題目選擇、答案處理、狀態持久化和結果報告。新版採用物件導向設計，舊版則依賴 `$_SESSION`。
+- **任務管理模組 (`assignMission`, `ExamResult`)**: 提供教師創建、分配和報告學習任務的介面和後端邏輯。
+- **SRL 檢核表模組 (`checklists_new`, `learning_regulated_fillout`)**: 允許教師創建自律學習檢核表，並供學生填寫和評分。
 
-## 關鍵發現與理解
+## 數據流與權限管理
+- **用戶認證**: 用戶通過 `login.php` 登入，經 `auth_chk.php` 驗證身份。支持本地帳號、Google SSO (`googleLogin.php`, `loginAuth.php`)、教育雲 OpenID (`login_openID.php`, `choiceIdentity.php`) 和酷課雲 SSO (`login_cooc.php`, `roles_cooc.php`)。
+- **會話管理**: 廣泛使用 `$_SESSION` 儲存用戶數據和會話狀態，並有 Session ID 重生、閒置超時等機制。
+- **數據傳輸**: 前後端主要通過 AJAX 請求 (`turnpage.php` 作為路由) 傳輸 JSON 數據。
+- **權限控制**: `acl.php` 根據 `access_level` 動態生成菜單和控制頁面訪問權限。`config.php` 定義了詳細的 `USER_` 權限常量。
+- **資料庫互動**: 大量使用 PDO 進行資料庫操作，通常通過 `$dbh` 和 `$dbh_slave` 進行讀寫分離。
 
-### 初步分析 (2025年7月17日)
+## 安全機制
+- **XSS 防護**: 廣泛應用 `preventXss()`、`xss_filter()` 和 `HTMLPurifier` 進行輸入過濾和輸出轉義。
+- **CSRF 防護**: 在多個關鍵頁面（如 `confirm.php`, `prodb_user_recovery.php`, `turnpage.php`, `loginAuth.php`）實施 CSRF Token 驗證。
+- **檔案完整性檢查**: 生產環境下，`modules_new.php` 會檢查引入 PHP 檔案的 SHA256 雜湊值 (`adl_hash_file.json`)，防止檔案篡改。
+- **密碼處理**: 密碼重設流程包含 Token 驗證和時效性檢查，新密碼會進行雜湊處理並檢查與歷史密碼的重複性。
+- **URL 驗證**: `validateRedirect()` 函數用於驗證和清理 URL，防止開放重定向漏洞。
+- **IP 限制**: `quickLogin4LAB.php` 和 `new_styleGuide.php` 等內部工具通過 IP 限制訪問。
+- **錯誤訊息處理**: 錯誤訊息中包含行號，生產環境應考慮移除以避免信息洩露。
+- **敏感資訊保護**: `config.php` 中郵件帳密等敏感資訊應特別注意保護。
 
-- **`index.php`:** 內容為 `<h1>您的操作錯誤！！</h1>`，推測可能不是主要入口點，或為舊有檔案。
-- **`composer.json`:**
-    - PHP 專案，要求 PHP 7.4.0。
-    - 使用的 PHP 函式庫：`ezyang/htmlpurifier` (HTML 過濾)、`guzzlehttp/guzzle` (HTTP 客戶端)、`phpoffice/phpspreadsheet` (Excel 處理)、`phpoffice/phpword` (Word 處理)。
-- **`package.json`:**
-    - 使用的前端框架/函式庫：`vue`、`vue-router` (前端路由)、`hammerjs` (手勢辨識)、`mathjax` (數學公式渲染)、`showdown` (Markdown 轉換)。
-    - 推測專案為前後端分離或混合應用。
-
-### 專案入口點探索 (2025年7月17日)
-
-- **`login.php`:**
-    - 重要的登入頁面，處理使用者登入、身份驗證、Cookie/Session 管理。
-    - 包含前端 HTML、CSS、JavaScript。
-    - 引用了 `include/config.php`、`include/adp_core_function.php`、`include/security_function.php`、`include/adp_core_security.php` 和 `modules/OpenID/config_openid.php` 等核心功能和安全相關檔案。
-    - 成功登入後導向 `modules_new.php?op=main`。
-- **`modules.php`:**
-    - 簡單的重定向頁面，將請求導向 `modules_new.php`。
-    - 表明 `modules_new.php` 才是實際處理模組邏輯的檔案。
-
-### `modules_new.php` 分析 (2025年7月17日)
-
-- **核心控制器：** 負責處理大部分應用邏輯和頁面渲染。
-- **引入檔案：** 大量引入 `include/` 和 `modules/OpenID/` 下的 PHP 檔案，包含配置、安全、核心功能、OpenID 相關邏輯和身份驗證檢查。
-- **安全防護：** 使用 `preventXss($_REQUEST)` 預防 XSS 攻擊；包含檔案哈希檢查，確保載入檔案的驗證性。
-- **使用者權限：** 根據 `access_level` 處理資料庫權限管理。
-- **登出邏輯：** 根據登入來源（如 OpenID）進行不同重定向。
-- **導航與內容顯示：** 根據 URL 參數 (`op`, `name`, `file`) 判斷是否隱藏導航欄，並動態載入 `modules/` 目錄下的 PHP 檔案。
-- **模組載入機制：** `$exec_file = 'modules/' . $my_code_path . $my_code_sub_path . $my_code_filename . '.php';` 定義了模組檔案路徑。
-- **首頁重定向：** 根據使用者 `access_level` 將使用者重定向到不同的儀表板頁面。
-- **前端資源：** 引入大量 CSS 和 JavaScript 檔案，包括 `jquery`、`vue`、`vue-router`、`iziModal`、`sweetalert`、`axios`、`html2canvas` 等。
-- **數據追蹤：** 整合 Google Tag Manager。
-- **問題回報：** 包含截圖並提交問題的功能。
-
-### 核心配置與安全檔案分析 (2025年7月17日)
-
-- **`config.php`:**
-    - 專案核心配置，定義了路徑、URL、密碼長度、閒置時間、使用者身份代號、郵件伺服器設定、檔案路徑等。
-    - 引入 `config_db.php` (資料庫配置) 和 `xapi_settings.php` (xAPI 配置)。
-    - 定義 `STU_IN_SCHOOL_YEAR`，用於不同學校類型的在學年級。
-    - 包含安全相關定義，如 `_HTTPS_SITE_LIST` 和 `_TEST_SITE_LIST`。
-- **`adp_core_function.php`:**
-    - 大量核心功能函數，涵蓋時間、學期、資料庫查詢、字串加密解密、XSS 防護 (使用 `HTMLPurifier`)、檔案處理、錯誤除錯、使用者權限、學校相關、能力指標相關等。
-- **`security_function.php`:**
-    - 提供多種安全過濾函數，包括資料類型過濾、`addslashes` 處理、HTML 標籤和 JavaScript 關鍵字過濾、XSS 防護 (`xss_clean`)、重定向 URL 驗證 (`validateRedirect`)、檔案路徑清理 (`sanitizeInputForPath`)、身份證驗證和安全反序列化。
-- **`adp_core_security.php`:**
-    - 專注於 XSS 防護，使用正則表達式過濾常見的 XSS 攻擊模式。
-- **`auth_chk.php`:**
-    - 負責使用者身份驗證的核心邏輯，檢查帳號和學校狀態，處理閒置超時，並在登入失敗時進行重定向或返回錯誤訊息。
-
-### 模組目錄內容 (2025年7月17日)
-
-- `modules/` 目錄包含以下子目錄，每個子目錄可能代表一個功能模組：
-    - `00Tools`
-    - `21cps`
-    - `assignCR`
-    - `assignMission`
-    - `BayesianTest`
-    - `blankFilling`
-    - `Board`
-    - `chatroom`
-    - `ck`
-    - `class`
-    - `coin`
-    - `ConceptStructure`
-    - `contest`
-    - `contestexam`
-    - `conversational_robot`
-    - `cooc`
-    - `D3`
-    - `dashboard`
-    - `DynamicAdaptiveTest`
-    - `eduexam`
-    - `exam`
-    - `ExamResult`
-    - `ExternalMaterial`
-    - `games`
-    - `high_level_capability`
-    - `inclass_platform`
-    - `indicateTest`
-    - `IndicatorItembank`
-    - `indicatorTest`
-    - `indicatorTestBAT`
-    - `info`
-    - `learn_video`
-    - `learningcloud`
-    - `LiteracyMaterial`
-    - `menu`
-    - `message`
-    - `moveRole`
-    - `new_class`
-    - `notifications`
-    - `OpenID`
-    - `physics_interactive`
-    - `Practice`
-    - `questionnaire`
-    - `remedyTest`
-    - `role`
-    - `schoolReport`
-    - `schoolSet`
-    - `science`
-    - `science_reading_report`
-    - `setting`
-    - `srl`
-    - `teacher_training`
-    - `UserFunction`
-    - `UserManage`
-    - `voice_recognition`
-    - `xapi`
-
-### 類別檔案分析 (2025年7月17日)
-
-- **`classes/adp_core_class.php`:**
-    - 定義了多個核心類別，用於處理使用者資料 (`UserData`)、概念結構 (`ConceptDataBN`, `Concept_Structure`)、試題資料 (`ItemData`)、補救教學資料 (`RemedyData`)、班級資料 (`ClassData`, `ClassDataSemester`)、學生診斷報告生成 (`Print_Student_Data`)、使用者狀態日誌 (`UserStatusLog`) 和 xAPI 整合 (`XAPIManager`)。
-- **`classes/Mission.php`:**
-    - 定義了 `Mission` 類別，用於處理任務相關的邏輯，包括任務的創建、查詢、學生學習記錄的創建和更新。
-- **`classes/Exam/AbstractExam.php`:**
-    - 定義了考試相關的常數，包括考試內容類型、考試類型、任務類型與考試類型的映射關係、各種資料表名稱等。
-    - 提供了 `getTableName()` 和 `getDbFuncName()` 方法，用於根據基本名稱獲取實際的資料表名和資料庫函數名。
-    - 提供了 `getOnscreenKeyboards()` 和 `getKeyboardKeys()` 靜態方法，用於獲取螢幕小鍵盤的資訊。
-- **`classes/Exam/AbstractItem.php`:**
-    - 定義了試題相關的抽象類別，處理試題的創建、更新、狀態檢查等邏輯。
-    - 定義了試題的狀態常數、操作權限常數、試題類型常數、答案選項類型常數。
-    - 提供了 `createItem()` 和 `updateItem()` 方法，用於處理試題的創建和更新，包括檔案上傳、資料庫操作、能力指標檢查等。
-- **`classes/Excel/reader.php`:**
-    - 定義了 `Spreadsheet_Excel_Reader` 類別，用於讀取舊版 Excel 檔案（BIFF8 和 BIFF7 格式）。
-    - 依賴於 `oleread.inc` 檔案來處理 OLE 複合文檔格式。
-    - 包含了處理日期和數字格式的邏輯，以及 UTF-16 編碼轉換的功能。
-    - 可能是用於處理專案中上傳的 Excel 數據，例如概念結構、試題數據等。
-- **`classes/FileUpload/AbstractFileUploader.php`:**
-    - 抽象類別，為檔案上傳功能提供了基礎框架。
-    - 定義了檔案類型常數，抽象方法用於獲取檔案上傳路徑、模組名稱、是否依檔案類型設定子目錄、接受的檔案類型和最大檔案大小。
-    - 提供了 `setFileUploadPathSubdir()`、`unlinkFiles()`、`uploadFiles()`、`getUploadedFiles()`、`unlinkOldUploadedFiles()`、`getCustomFileUploadPath()` 和 `createFileClass()` 等方法，處理檔案的驗證、移動、權限設定和舊檔案清理。
-- **`classes/OpenID/openID_user_Info.php`:**
-    - 定義了處理 OpenID 使用者資訊的核心類別和介面。
-    - 包含了 `OpenIDUserInfo` (驗證使用者資訊)、`OpenIDLoggedInUserInfo` (設定登入身份)、`OpenIDTitle` (管理使用者職稱) 和 `OpenIDUserInfoLogger` (記錄登入日誌) 等類別。
-    - 提供了詳細的 OpenID 登入處理邏輯，包括使用者資訊驗證、身份判斷、班級資訊獲取和詳細日誌記錄。
-- **`classes/PEAR/Auth.php`:**
-    - PEAR Auth 庫的核心檔案，提供了使用者身份驗證的功能。
-    - 包含了會話管理、安全檢查（IP、使用者代理、挑戰 Cookie）、登入/登出回調、以及多點登入處理。
-- **`classes/PEAR/DB.php`:**
-    - PEAR DB 庫的核心檔案，提供了資料庫獨立的查詢介面。
-    - 包含了資料庫連接、錯誤處理、DSN 解析、以及結果集和行數據的處理。
-- **`classes/PHPExcel/IOFactory.php`:**
-    - PHPExcel 庫的輸入/輸出工廠類別，用於自動識別和創建不同格式的 Excel 檔案讀取器 (Reader) 和寫入器 (Writer)。
-    - 能夠自動識別多種 Excel 檔案格式，並與 `phpoffice/phpspreadsheet` 相關。
-- **`classes/PHPMailer/class.phpmailer.php`:**
-    - PHPMailer 庫的核心類別，提供了強大的郵件發送功能。
-    - 包含了郵件內容設定、發送方式選擇、地址驗證、IDN 轉換、DKIM 簽名、錯誤處理和調試輸出等功能。
-- **`classes/phpqrcode/qrlib.php`:**
-    - PHP QR Code 函式庫的根檔案，主要負責準備環境並引入其他必要的組件檔案。
-    - 包含了 QR Code 編碼的核心功能，可能用於生成登入 QR Code、資料分享 QR Code 或其他需要二維碼的功能。
-- **`classes/securimage/securimage.php`:**
-    - Securimage CAPTCHA 類別的核心檔案，用於生成和驗證 CAPTCHA 圖像和音頻。
-    - 支持多種 CAPTCHA 類型、圖像和音頻輸出、以及資料庫儲存等。
-- **`classes/Competency.php`:**
-    - 定義了 `Competency` 類別，用於處理能力指標相關的數據和邏輯。
-    - 包含了能力單元元件的獲取、單元總分計算、使用者成績處理、以及成績分組和分析等功能。
-- **`classes/DynamicAssessment.php`:**
-    - 定義了 `DynamicAssessment` 類別，用於處理動態評量相關的數據和邏輯。
-    - 包含了試題的獲取、順序設定、以及單個試題的封裝 (`DAitem` 類別)。
-- **`classes/Formater.php`:**
-    - 工具類別，提供了多個靜態方法，用於格式化 SQL 查詢中的條件字串，提高程式碼的可讀性和可維護性。
-- **`classes/Rank.php`:**
-    - 定義了 `Rank` 類別，提供了靜態方法 `listing()`，用於根據不同的學習活動生成排名列表，用於學習分析和使用者激勵。
-- **`classes/School.php`:**
-    - 定義了 `School` 類別，用於處理學校相關的資訊和權限。
-    - 包含了班級資訊列表的獲取、班級編號與人數的轉換、以及使用者權限檢查。
-- **`classes/SchoolData.php`:**
-    - 定義了 `SchoolData` 類別，用於獲取學校的基本資料和班級成員資訊。
-    - 與 `classes/adp_core_class.php` 中的 `ClassData` 類別功能有部分重疊，可能是一個較舊或不同用途的實現。
-- **`classes/TeacherClasses.php`:**
-    - 定義了 `TeacherClasses` 類別，用於處理教師所屬的班級資訊。
-    - 包含了多種班級類型（普通年班、自組班級、學習扶助班級、學生小組）的獲取和學生列表的查詢。
-- **`classes/Count.php`:**
-    - 簡單的工具類別，提供了靜態方法來計算使用者在不同學習活動中的次數（影片、練習、動態評量）。
-- **`classes/GroupEvaluationClass.php`:**
-    - 定義了 `GroupEvaluationClass` 類別，用於處理組內互評表單的建立、管理和評分功能。
-    - 包含了表單的載入、分頁、作答連結生成和批量添加等功能。
-- **`classes/HighSchool.php`:**
-    - 繼承自 `classes/School.php`，專門處理高中相關的班級管理邏輯。
-    - 包含了高中職學制、群別和科別的映射關係獲取、班級的添加、編輯和刪除，以及大學班級的相關功能。
-- **`classes/indicateAdaptiveTestStructure.php`:**
-    - 定義了 `indicateAdaptiveTestStructure` 類別，用於處理適性測驗的結構和流程。
-    - 包含了節點關係、試題選擇、答案檢查、測驗暫停/恢復、結果生成等複雜邏輯。
-- **`classes/indicateAdaptiveTestTotalItems.php`:**
-    - 定義了 `indicateAdaptiveTestTotalItems` 類別，主要用於計算適性測驗的總題數。
-    - 包含了節點關係的構建和總題數的計算。
-- **`classes/indicateTestFun.php`:**
-    - 函數庫，包含了一些與適性測驗相關的輔助函數，用於支援適性測驗的運作。
-- **`classes/report_learningeffect_class.php`:**
-    - 定義了 `ReportLearningeffectClass` 類別，用於處理學習成效數據報表。
-    - 提供了多種 `create` 和 `handle` 方法來生成和整理不同維度的報表數據，包括學校級、學生級和科目統計數據。
-- **`classes/ResultRecord.php`:**
-    - 定義了 `ResultRecord` 類別，用於封裝資料庫查詢的結果，提供統一的狀態、訊息和數據存取介面。
-- **`classes/prodb_mission_record_update.php`:**
-    - 定義了 `update_mission_record` 類別，用於更新任務學習記錄。
-    - 包含了任務進度追蹤、節點完成情況更新、動作次數計算等功能。
-- **`classes/read_excel.inc.php`:**
-    - 輔助函數檔案，包含了用於讀取 Excel 檔案的函數，與 `classes/Excel/reader.php` 相關。
-- **`classes/SemeDate.php`:**
-    - 定義了 `SemeDate` 類別，用於處理學期日期，包含學期開始和結束日期的計算。
-- **`classes/Step.php`:**
-    - 繼承自 `classes/Count.php`，用於新手引導。
-    - 根據使用者在不同學習活動中的完成情況來推進引導步驟。
-- **`include/adp_API.php`:**
-    - API 引入檔案，根據運行環境引入其他核心檔案，作為中心化的引入點。
-- **`include/adp_core_html.php`:**
-    - HTML 輔助函數檔案，包含了用於生成 HTML 結構和頁面元素的函數，主要用於生成後台管理介面的導航和功能入口。
-- **`include/adp_for_php7.php`:**
-    - 提供了 PHP 7 環境下對舊版 PHP 函數和 `mysql_*` 函數的兼容性支持。
-- **`include/check_accountCombine.php`:**
-    - 用於檢查使用者帳號是否已綁定 OpenID 或教育雲帳號。
-- **`include/check_password.php`:**
-    - 用於檢查使用者密碼的相關邏輯，包括密碼有效期和驗證。
-- **`include/config_db.php`:**
-    - 資料庫連接的配置檔案，包含了資料庫憑證、Cookie 選項、環境設定等。
-- **`include/creatHierselectList.php`:**
-    - 包含了 `creatHierselectList()` 函數，用於生成階層式學校選單的 HTML 代碼。
-- **`include/ftp_function.php`:**
-    - 包含了與 FTP 相關的函數，主要用於從 FTP 伺服器下載檔案並處理匯入，包括檔案類型判斷、數據解析、使用者帳號查找和創建等。
-- **`include/function_isMoblieDevice.php`:**
-    - 包含了 `isMobileTablet()` 函數，用於判斷使用者是否使用行動裝置或平板電腦。
-- **`include/function_serialize_mission_data.php`:**
-    - 包含了 `getSerializeMissionData()` 函數，用於序列化任務數據，以及多個輔助函數用於獲取任務相關的詳細資訊。
-- **`include/function_studentDailyReport.php`:**
-    - 包含了用於生成學生日報表的函數，包括獲取原始報表數據、計算停留時間、處理任務數據和學力數據等。
-- **`include/getTime_function.php`:**
-    - 包含了用於獲取時間相關數據的函數，例如檢查教師 ID、獲取班級資訊、獲取任務數量和停留時間等。
-- **`include/learning_note_function.php`:**
-    - 包含了 `checkIfHasRecommendNotes()` 函數，用於檢查是否有推薦筆記。
-- **`include/merge_account_function.php`:**
-    - 包含了帳號合併相關的函數，用於將舊帳號的數據（任務、家庭、組卷、考試記錄、代幣等）轉移到新帳號。
-- **`include/network_function.php`:**
-    - 包含了網路相關的函數，例如 `ping()` (檢查主機回應)、`get_host_ip()` (獲取主機 IP)、`get_host_name()` (獲取主機名稱)、`get_host_mac()` (獲取主機 MAC)、`get_host_os()` (獲取主機作業系統) 和 `get_host_port*()` (獲取主機開放端口和服務資訊)。
-- **`include/ref_cityarea.php`:**
-    - 定義了台灣各縣市和區域的郵遞區號對應關係。
-- **`include/ref_laboratory.php`:**
-    - 定義了數學實驗室學具與數學科目大節點的對應關係。
-- **`include/ref_message.php`:**
-    - 定義了科目和年級需要顯示的額外訊息。
-- **`include/ref_remedial.php`:**
-    - 定義了補救教學節點與因材網節點和組卷的對應關係。
-- **`include/xapi_settings.php`:**
-    - 定義了 xAPI 學習記錄系統的核心設定，包括 LRS 連接、功能開關、批次處理、除錯和學習者身份等。
-
+## 關鍵發現與待辦事項
+- **技術棧**: PHP (後端), Vue.js (前端), jQuery, Composer, npm, PDO, PEAR Auth, SweetAlert2, Video.js, html2canvas, D3.js, MathJax, Showdown, Hammer.js 等。
+- **歷史演進**: 存在新舊模組並存的情況（例如適性測驗的 `indicateTestFun.php` 和 `indicateAdaptiveTestStructure`），表明專案在不斷演進和重構。
+- **待辦事項**: 需持續深入分析各模組間的詳細互動邏輯，特別是 AJAX 請求的後端處理檔案，以及資料庫表的具體結構和關聯。
