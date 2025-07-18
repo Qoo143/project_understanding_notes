@@ -1,47 +1,47 @@
-# indicateAdaptiveTestStructure.php Analysis
+# indicateAdaptiveTestStructure.php 分析
 
-This file defines the `indicateAdaptiveTestStructure` class, which is the core engine for handling adaptive tests within the platform. It manages the entire lifecycle of an adaptive test, from initialization to result submission.
+此檔案定義了 `indicateAdaptiveTestStructure` 類別，它是平台內處理適性測驗的核心引擎。它管理適性測驗的整個生命週期，從初始化到結果提交。
 
-## Key Responsibilities:
+## 主要職責：
 
-1.  **Test Initialization (`__construct`)**:
-    *   Takes a `mission_sn` (mission serial number) as input.
-    *   Fetches mission data, including the subject, test type, and the structure of the knowledge map (nodes).
-    *   Introduces a caching mechanism (`getPreData`, `makePreData`) to store pre-processed test structure data (`node_link_data`, `bNode_sNodes_count`, `total_items`) in the `indicate_test_predata` table. This avoids costly recalculations for each test session and checks if the map has been updated to invalidate the cache.
-    *   Initializes the status of all nodes (`bNode` - big nodes, `sNode` - small nodes) and sets up initial test parameters.
+1.  **測驗初始化 (`__construct`)**：
+    *   接收 `mission_sn`（任務序號）作為輸入。
+    *   獲取任務數據，包括科目、測驗類型和知識圖（節點）的結構。
+    *   引入緩存機制（`getPreData`、`makePreData`），將預處理的測驗結構數據（`node_link_data`、`bNode_sNodes_count`、`total_items`）存儲在 `indicate_test_predata` 表中。這避免了每次測驗會話的昂貴重新計算，並檢查地圖是否已更新以使緩存失效。
+    *   初始化所有節點（`bNode` - 大節點，`sNode` - 小節點）的狀態，並設置初始測驗參數。
 
-2.  **Item Selection (`getNextItem`)**:
-    *   The heart of the adaptive logic. It determines which question (`item_sn`) to present next.
-    *   Navigates through a pre-defined order of "small nodes" (`sNodes_order`).
-    *   When a small node is completed, it calls `modifyNodeStatus` to update the student's mastery status and `modifyLowNodeStatus` to propagate the results to connected nodes in the knowledge graph (e.g., predicting mastery of higher-level nodes).
-    *   Handles different test phases (`step=1` for adaptive, `step=2` for an optional full test).
+2.  **項目選擇 (`getNextItem`)**：
+    *   適性邏輯的核心。它決定下一個要呈現的問題（`item_sn`）。
+    *   導航通過預定義的「小節點」（`sNodes_order`）順序。
+    *   當一個小節點完成時，它會調用 `modifyNodeStatus` 更新學生的掌握狀態，並調用 `modifyLowNodeStatus` 將結果傳播到知識圖中連接的節點（例如，預測更高層次節點的掌握情況）。
+    *   處理不同的測驗階段（`step=1` 用於適性，`step=2` 用於可選的完整測驗）。
 
-3.  **Answering and Response Handling (`checkAns`)**:
-    *   Receives the user's answer, compares it to the correct answer (handles multiple-choice), and records the response, time, and other metrics.
-    *   Updates overall item success rates for statistical purposes.
+3.  **回答和響應處理 (`checkAns`)**：
+    *   接收使用者的答案，將其與正確答案進行比較（處理多選題），並記錄響應、時間和其他指標。
+    *   更新整體項目成功率以用於統計目的。
 
-4.  **State Management and Persistence**:
-    *   **Pause/Resume**: Implements robust functionality (`examPause`, `getExamPauseData`) to save the complete test state to the `exam_record_indicate_tmp` table, allowing users to resume later.
-    *   **Final Submission**:
-        *   `makeExamSql`: Compiles the final results and saves them permanently to the `exam_record_indicate` table.
-        *   `updateExamineeSql`: Updates the `map_node_student_status` table, which stores the student's long-term mastery profile for the knowledge map.
-        *   Integrates with a `giveCoin` class for gamification rewards.
+4.  **狀態管理和持久化**：
+    *   **暫停/恢復**：實現穩健的功能（`examPause`、`getExamPauseData`），將完整的測驗狀態保存到 `exam_record_indicate_tmp` 表中，允許使用者稍後恢復。
+    *   **最終提交**：
+        *   `makeExamSql`：編譯最終結果並將其永久保存到 `exam_record_indicate` 表中。
+        *   `updateExamineeSql`：更新 `map_node_student_status` 表，該表存儲學生知識圖的長期掌握情況。
+        *   與 `giveCoin` 類別整合以進行遊戲化獎勵。
 
-## Key Concepts & Terminology:
+## 關鍵概念和術語：
 
-*   **Mission (`mission_sn`)**: A specific test or learning task.
-*   **Nodes (`bNode`, `sNode`)**: The test is structured around a knowledge map of "big nodes" (concepts) and "small nodes" (skills).
-*   **Node Status**: A numerical code representing the student's mastery state for a node (-1: Not attempted, 0: Incorrect, 1: Correct, 2: Predicted Correct, etc.).
-*   **Caching (`indicate_test_predata`)**: Pre-calculating and storing the node structure to improve performance.
+*   **任務 (`mission_sn`)**：一個特定的測驗或學習任務。
+*   **節點 (`bNode`、`sNode`)**：測驗圍繞著「大節點」（概念）和「小節點」（技能）的知識圖構建。
+*   **節點狀態**：表示學生對節點掌握狀態的數值代碼（-1：未嘗試，0：不正確，1：正確，2：預測正確等）。
+*   **緩存 (`indicate_test_predata`)**：預先計算和存儲節點結構以提高性能。
 
-## Dependencies:
+## 依賴項：
 
-*   `prodb_mission_record_update.php`: For updating mission records.
-*   `adp_core_class.php`: Contains shared core functions/classes.
-*   `giveCoin` class: For the reward system.
-*   Global database handles (`$dbh`, `$dbh_slave`).
-*   Global functions like `sNode2bNode()`.
+*   `prodb_mission_record_update.php`：用於更新任務記錄。
+*   `adp_core_class.php`：包含共享的核心函數/類別。
+*   `giveCoin` 類別：用於獎勵系統。
+*   全局資料庫句柄（`$dbh`、`$dbh_slave`）。
+*   全局函數，例如 `sNode2bNode()`。
 
-## Overall Impression:
+## 整體印象：
 
-This is a complex and sophisticated class for an adaptive testing system. It handles test flow, caching, state persistence, results storage, and integration with a student's learning profile and a gamification system. The logic for traversing the knowledge graph and updating node statuses is its most critical feature.
+這是一個複雜而精密的適性測驗系統類別。它處理測驗流程、緩存、狀態持久化、結果存儲以及與學生學習檔案和遊戲化系統的整合。遍歷知識圖並更新節點狀態的邏輯是其最關鍵的功能。

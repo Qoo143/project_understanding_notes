@@ -1,33 +1,33 @@
-# indicateTestFun.php Analysis
+# indicateTestFun.php 分析
 
-This file contains a collection of functions, not a class, that collectively implement an adaptive testing system. This system appears to be an alternative, and likely earlier, implementation compared to the `indicateAdaptiveTestStructure` class. Its entire state management relies on the `$_SESSION` superglobal.
+此檔案包含一系列函數，而不是一個類別，它們共同實現了一個適性測驗系統。這個系統似乎是 `indicateAdaptiveTestStructure` 類別的一個替代方案，而且可能更早實現。它的整個狀態管理都依賴於 `$_SESSION` 超級全局變數。
 
-## Core Functionality:
+## 核心功能：
 
-1.  **Session-Based State Management**:
-    *   The entire state of the test—including node information, item details, and user progress—is stored within the `$_SESSION['indicateTest']` array.
-    *   `buildNodeSESSION`: This is the primary initialization function. It takes a starting `bNode` (big node), fetches all its child `sNodes` (small nodes) and their corresponding items from the database, and populates the `$_SESSION` variable with the initial test structure.
+1.  **基於會話的狀態管理**：
+    *   測驗的整個狀態——包括節點信息、項目詳細信息和使用者進度——都存儲在 `$_SESSION['indicateTest']` 陣列中。
+    *   `buildNodeSESSION`：這是主要的初始化函數。它接收一個起始 `bNode`（大節點），從資料庫中獲取其所有子 `sNodes`（小節點）及其對應的項目，並用初始測驗結構填充 `$_SESSION` 變數。
 
-2.  **Node and Item Handling**:
-    *   `sNodeNum` and `sNodeSort`: These functions retrieve and then sort the `sNodes` under a `bNode` to determine the testing order based on their dependencies.
-    *   `sNodeItemNum`: Fetches all items belonging to a specific `sNode`.
-    *   `nextBNodeSESSION`: Determines the next `bNode` to be tested after the current one is completed.
+2.  **節點和項目處理**：
+    *   `sNodeNum` 和 `sNodeSort`：這些函數檢索然後排序 `bNode` 下的 `sNodes`，以根據它們的依賴關係確定測驗順序。
+    *   `sNodeItemNum`：獲取屬於特定 `sNode` 的所有項目。
+    *   `nextBNodeSESSION`：確定當前 `bNode` 完成後要測試的下一個 `bNode`。
 
-3.  **Response Checking and Status Updates**:
-    *   `chkStuAns`: Checks the student's answer and updates the status of the item and the parent `sNode` within the `$_SESSION` (e.g., increments `doItemNum`, `trueItemNum`).
-    *   `chkSNodeStatus` & `chkBNodeStatus`: These functions are triggered when all sub-items of a node are completed. They evaluate whether the node is "passed" and update its status in the session.
-    *   `lowNode2True`: Implements the adaptive "prediction" logic. If a node is passed, this function recursively marks all its downstream nodes as passed (status `2`), allowing the test to skip them.
+3.  **響應檢查和狀態更新**：
+    *   `chkStuAns`：檢查學生的答案並更新項目和父 `sNode` 在 `$_SESSION` 中的狀態（例如，增加 `doItemNum`、`trueItemNum`）。
+    *   `chkSNodeStatus` 和 `chkBNodeStatus`：當節點的所有子項目完成時觸發這些函數。它們評估節點是否「通過」並更新其在會話中的狀態。
+    *   `lowNode2True`：實現適性「預測」邏輯。如果一個節點通過，此函數會遞歸地將其所有下游節點標記為通過（狀態 `2`），允許測驗跳過它們。
 
-4.  **Rendering and Persistence**:
-    *   `showItem`: Generates the complete HTML for a single question, including the question stem, options, and the form for submission.
-    *   `saveExamRecord`: At the end of the test, this function takes the final node statuses from the `$_SESSION` and writes them back to the `map_node_student_status` database table, updating the student's long-term learning profile.
+4.  **渲染和持久化**：
+    *   `showItem`：生成單個問題的完整 HTML，包括問題幹、選項和提交表單。
+    *   `saveExamRecord`：在測驗結束時，此函數從 `$_SESSION` 中獲取最終節點狀態，並將它們寫回 `map_node_student_status` 資料庫表，更新學生的長期學習檔案。
 
-## Comparison with `indicateAdaptiveTestStructure` Class:
+## 與 `indicateAdaptiveTestStructure` 類別的比較：
 
-*   **State Storage**: This is the most significant difference. `indicateTestFun.php` relies **entirely on `$_SESSION`** for real-time state management. In contrast, `indicateAdaptiveTestStructure` encapsulates the state within a class instance and uses a more robust database-backed temporary storage (`exam_record_indicate_tmp`) for pausing and resuming.
-*   **Architecture**: This is a procedural approach using a set of global functions, whereas the other is an object-oriented approach. The class-based method offers better encapsulation, reusability, and maintainability.
-*   **Underlying Logic**: The core logic is very similar. Both systems are built around the `bNode`/`sNode` concept and aim to update the `map_node_student_status` table. This suggests they are two different implementations for the same problem, with `indicateTestFun.php` likely being an earlier version.
+*   **狀態存儲**：這是最顯著的區別。`indicateTestFun.php` **完全依賴 `$_SESSION`** 進行實時狀態管理。相比之下，`indicateAdaptiveTestStructure` 將狀態封裝在類別實例中，並使用更穩健的基於資料庫的臨時存儲（`exam_record_indicate_tmp`）進行暫停和恢復。
+*   **架構**：這是一種使用一組全局函數的程序化方法，而另一種是物件導向方法。基於類別的方法提供了更好的封裝、可重用性和可維護性。
+*   **底層邏輯**：核心邏輯非常相似。兩個系統都圍繞 `bNode`/`sNode` 概念構建，並旨在更新 `map_node_student_status` 表。這表明它們是針對相同問題的兩種不同實現，其中 `indicateTestFun.php` 可能是早期版本。
 
-## Conclusion:
+## 結論：
 
-`indicateTestFun.php` is a self-contained, session-based adaptive testing engine. While functional, its heavy reliance on `$_SESSION` makes it potentially less scalable and robust than the more modern, class-based `indicateAdaptiveTestStructure` implementation. It represents a snapshot of an earlier development phase of the adaptive testing feature.
+`indicateTestFun.php` 是一個自包含的、基於會話的適性測驗引擎。雖然功能齊全，但它對 `$_SESSION` 的嚴重依賴使其可能不如更現代的、基於類別的 `indicateAdaptiveTestStructure` 實現那麼可擴展和穩健。它代表了適性測驗功能早期開發階段的快照。
